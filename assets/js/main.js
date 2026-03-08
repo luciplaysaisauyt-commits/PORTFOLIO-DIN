@@ -525,66 +525,178 @@ if (nav) {
   };
 
 
- // ── MUSIC PLAYLIST ──
-const musicBtn = document.getElementById('musicBtn');
-const bgMusic  = document.getElementById('bgMusic');
-if (musicBtn && bgMusic) {
+ // ── MUSIC PLAYLIST (enhanced) ─────────────────────────────────────────────
+(() => {
+  const musicBtn = document.getElementById('musicBtn');
+  const bgMusic  = document.getElementById('bgMusic');
+  if (!musicBtn || !bgMusic) return;
+
+  // Namespace для storage
+  const NS = 'bgmusic';
+  const LS = {
+    get(key, fallback = null) {
+      try { const v = localStorage.getItem(`${NS}:${key}`); return v ?? fallback; }
+      catch { return fallback; }
+    },
+    set(key, val) { try { localStorage.setItem(`${NS}:${key}`, String(val)); } catch {} },
+    del(key)      { try { localStorage.removeItem(`${NS}:${key}`); } catch {} }
+  };
+
+  // Плейлист: каждый трек может иметь несколько источников (flac/m4a/mp3)
+  // Браузер сам возьмёт первый поддерживаемый.
   const playlist = [
-    '/assets/music/igra-na-pianino-ochen-krasivaya-muzyka.mp3',
-    '/assets/music/muzyka-ochen-krasivaya-pianino.mp3',
-    '/assets/music/ochen-krasivaya-muzyka-na-pianino.mp3',
-    '/assets/music/pianino-ochen-krasivaya-muzyka.mp3',
-    '/assets/music/pianino-pod-dozhdem-ochen-krasivaya-muzyka.mp3'
+    {
+      title: 'Piano I',
+      sources: [
+        '/assets/music/videoplayback_2.flac', // Hi‑Fi для Chrome/Firefox
+        '/assets/music/videoplayback_1.m4a',  // Fallback для Safari/iOS
+        '/assets/music/videoplayback_1.mp3'   // Универсальный fallback
+      ]
+    }
+    // Можешь добавить ещё треки по этому же шаблону
   ];
 
-  let currentTrack = parseInt(localStorage.getItem('musicTrack') || '0');
-  const savedTime  = parseFloat(localStorage.getItem('musicTime') || '0');
-  const wasPlaying = localStorage.getItem('musicPlaying') === 'true';
+  // ── State
+  let currentTrack = parseInt(LS.get('trackIndex', '0'), 10) || 0;
+  currentTrack = Math.max(0, Math.min(currentTrack, playlist.length - 1));
+  const savedTime  = parseFloat(LS.get('time', '0')) || 0;
+  const wasPlaying = LS.get('playing', 'false') === 'true';
 
-  bgMusic.volume = 0.1;
-  bgMusic.src = playlist[currentTrack];
+  // ── Audio defaults
+  const TARGET_VOL = 0.12;  // целевая громкость
+  const FADE_MS    = 250;   // длительность fade in/out
+  bgMusic.volume   = 0;     // начнём с 0 для фейда
+  bgMusic.preload  = 'metadata';
 
-  bgMusic.addEventListener('canplay', () => {
-    if (savedTime > 0) bgMusic.currentTime = savedTime;
-    if (wasPlaying) {
-      bgMusic.play();
-      musicBtn.textContent = '🔊';
-      musicBtn.classList.add('playing');
+  // Установить источники для текущего трека
+  function setTrack(index) {
+    index = (index + playlist.length) % playlist.length;
+    currentTrack = index;
+
+    // Сброс источников
+    bgMusic.pause();
+    bgMusic.removeAttribute('src');
+    while (bgMusic.firstChild) bgMusic.removeChild(bgMusic.firstChild);
+
+    const track = playlist[index];
+    track.sources.forEach(src => {
+      const s = document.createElement('source');
+      s.src = src;
+      // Пропишем типы (полезно для некоторых серверов/браузеров)
+      if (src.endsWith('.flac')) s.type = 'audio/flac';
+      if (src.endsWith('.m4a'))  s.type = 'audio/mp4';
+      if (src.endsWith('.mp3'))  s.type = 'audio/mpeg';
+      bgMusic.appendChild(s);
+    });
+
+    // Обнулим прогресс для нового трека
+    LS.set('trackIndex', index);
+    LS.set('time', 0);
+
+    try { bgMusic.load(); } catch {}
+    // Обновим Media Session заголовок (если поддерживается)
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title || 'Music', artist: '—', album: '—'
+      });
+    }
+  }
+
+  // Плавная смена громкости
+  function fadeTo(target, ms = FADE_MS) {
+    return new Promise(resolve => {
+      const start = performance.now();
+      const from  = bgMusic.volume;
+      const diff  = target - from;
+      function step(t) {
+        const p = Math.min(1, (t - start) / ms);
+        bgMusic.volume = from + diff * p;
+        if (p < 1) requestAnimationFrame(step);
+        else { bgMusic.volume = target; resolve(); }
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  // Safe play (ловим автоплей-ограничения)
+  async function safePlay() {
+    try {
+      await bgMusic.play();
+      await fadeTo(TARGET_VOL);
+      updateBtnUI(true);
+      LS.set('playing', true);
+      return true;
+    } catch {
+      updateBtnUI(false);
+      LS.set('playing', false);
+      return false;
+    }
+  }
+
+  function updateBtnUI(isPlaying) {
+    musicBtn.textContent = isPlaying ? '🔊' : '🎵';
+    musicBtn.classList.toggle('playing', isPlaying);
+    musicBtn.setAttribute('aria-pressed', String(isPlaying));
+  }
+
+  // ── События
+  bgMusic.addEventListener('loadedmetadata', () => {
+    if (savedTime > 0 && savedTime < (bgMusic.duration || Infinity)) {
+      bgMusic.currentTime = savedTime;
     }
   }, { once: true });
 
-  // Сохраняем позицию каждую секунду
-  setInterval(() => {
-    if (!bgMusic.paused) {
-      localStorage.setItem('musicTime', bgMusic.currentTime);
-      localStorage.setItem('musicTrack', currentTrack);
-    }
-  }, 1000);
+  bgMusic.addEventListener('canplay', async () => {
+    if (wasPlaying) await safePlay();
+    else updateBtnUI(false);
+  }, { once: true });
 
- bgMusic.addEventListener('ended', () => {
-    currentTrack = (currentTrack + 1) % playlist.length;
-    localStorage.setItem('musicTrack', currentTrack);
-    localStorage.setItem('musicTime', '0');
-    bgMusic.src = playlist[currentTrack];
-    bgMusic.load();
-    bgMusic.play();
+  // Сохраняем позицию с троттлингом по timeupdate
+  let lastSave = 0;
+  bgMusic.addEventListener('timeupdate', () => {
+    const now = performance.now();
+    if (now - lastSave > 900 && !bgMusic.paused) {
+      LS.set('time', bgMusic.currentTime);
+      LS.set('trackIndex', currentTrack);
+      lastSave = now;
+    }
   });
-  
-  musicBtn.addEventListener('click', () => {
-    if (bgMusic.paused) {
-      bgMusic.play();
-      musicBtn.textContent = '🔊';
-      musicBtn.classList.add('playing');
-      localStorage.setItem('musicPlaying', 'true');
-    } else {
+
+  // Следующий трек по окончанию (зациклит единственный трек)
+  bgMusic.addEventListener('ended', async () => {
+    LS.set('time', 0);
+    setTrack(currentTrack + 1);
+    try { await bgMusic.play(); updateBtnUI(true); } catch { updateBtnUI(false); }
+  });
+
+  // Play/Pause
+  musicBtn.addEventListener('click', async () => {
+    if (bgMusic.paused) await safePlay();
+    else {
+      await fadeTo(0);
       bgMusic.pause();
-      musicBtn.textContent = '🎵';
-      musicBtn.classList.remove('playing');
-      localStorage.setItem('musicPlaying', 'false');
+      updateBtnUI(false);
+      LS.set('playing', false);
     }
   });
-}
 
+  // Media Session (кнопки на гарнитуре/локскрине)
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play',  async () => { if (bgMusic.paused) await safePlay(); });
+    navigator.mediaSession.setActionHandler('pause', async () => { await fadeTo(0); bgMusic.pause(); updateBtnUI(false); LS.set('playing', false); });
+    navigator.mediaSession.setActionHandler('previoustrack', async () => {
+      LS.set('time', 0); setTrack(currentTrack - 1);
+      try { await bgMusic.play(); updateBtnUI(true); } catch {}
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', async () => {
+      LS.set('time', 0); setTrack(currentTrack + 1);
+      try { await bgMusic.play(); updateBtnUI(true); } catch {}
+    });
+  }
+
+  // Инициализация
+  setTrack(currentTrack);
+})();
 
 // ── Scroll Reveal (все страницы) ──
 (function () {

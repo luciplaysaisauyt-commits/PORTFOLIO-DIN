@@ -1003,7 +1003,7 @@ body {
 
   .clm-body .chip {
     display: inline-flex;
-    align-items: center;
+    align-items: center;git commit -m "Updated CLM & UnnieBox mobile layouts, hero, meta blocks, header fix"
     gap: 6px;
     padding: 5px 10px;
     border-radius: 999px;

@@ -453,7 +453,7 @@ body:not(.is-loaded) .ub-content{opacity:0;transform:translateY(14px)}
   /* Текстовый блок — первым */
   .ub-body .case-hero > div:first-child {
     order: 1;
-  }
+  }a
 
   /* Meta‑блоки — под фото */
   .ub-body .case-meta {
