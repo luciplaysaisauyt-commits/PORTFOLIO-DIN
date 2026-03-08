@@ -7,7 +7,7 @@
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding: 120px 48px 80px;
+  padding: calc(var(--navH) + 30px) 64px 64px;
   position: relative;
   overflow: hidden;
   background: radial-gradient(ellipse 80% 60% at 20% 50%, rgba(200,169,110,0.05) 0%, transparent 60%);

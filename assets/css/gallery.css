@@ -25,7 +25,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 120px 64px 64px;
+  padding: calc(var(--navH) + 30px) 48px 60px;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   gap: 32px;

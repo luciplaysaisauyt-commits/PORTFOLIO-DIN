@@ -4,7 +4,7 @@
 
 /* HERO */
 .contact-hero {
-  padding: 140px 48px 60px;
+  padding: calc(var(--navH) + 30px) 48px 60px;
   text-align: center;
 }
 

@@ -363,6 +363,7 @@ body::before {
    RESPONSIVE
    ============================================ */
 @media (max-width: 900px) {
+  :root { --navH: 80px; }
   .nav { padding: 0 24px; height: 80px; }
   .logo img { height: 60px; }
   .menu { display: none; }
