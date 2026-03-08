@@ -507,7 +507,7 @@
 }
 
 @media (max-width: 768px) {
-  .idx-hero-inner { padding: 0 24px; padding-top: calc(var(--navH) + 40px); }
+  .idx-hero-inner { padding: 0 24px; padding-top: calc(var(--navH) + 10px); }
   .idx-works-head { padding: 0 24px 32px; }
   .idx-track-wrap { padding: 0 24px 16px; }
   .wcard { width: 260px; height: 400px; }
