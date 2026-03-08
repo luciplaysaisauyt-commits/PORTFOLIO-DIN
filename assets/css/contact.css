@@ -436,3 +436,82 @@ textarea {
 .idx-scroll {
   color: rgba(255,255,255,0.5);
 }
+
+
+/* 1) Универсально: безопасная зона для iOS везде, где есть нижний край формы/кнопки */
+.contact-right {
+  padding-bottom: max(52px, 28px + env(safe-area-inset-bottom));
+}
+
+/* 2) Кнопка отправки – доп. внутренний отступ вокруг, чтобы не прилипала к краю */
+.form-footer {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+/* 3) На мобилке: убираем жесткий clip контейнера и даем больше "воздуха" внизу */
+@media (max-width: 900px) {
+  .contact-main {
+    /* раньше: overflow: hidden; → это и создает тёмную полосу под скруглением */
+    overflow: visible;          /* разрешаем контенту «дышать» */
+    border-radius: var(--r-lg); /* оставляем скругления контейнера */
+    margin: 0 24px 24px;        /* небольшой отступ снизу перед футером */
+    padding-bottom: 0;          /* т.к. переносим запас в .contact-right */
+  }
+
+  .contact-right {
+    padding: 40px 28px;
+    /* критично: больше запаса под кнопку на маленьких экранах */
+    padding-bottom: max(72px, 36px + env(safe-area-inset-bottom));
+  }
+
+  /* Если есть тёмная подложка перед футером — перекрашиваем/убираем */
+  .contact-right::after {
+    content: none; /* если был декоративный слой, который давал тёмную полоску */
+  }
+}
+
+/* 4) Футер: корректные отступы и безопасная зона */
+.site-footer {
+  /* подстрой под свой селектор футера */
+  padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
+  margin-top: 0; /* убираем лишние зазоры — управляем ими через .contact-main */
+  background: var(--bg); /* убедись, что совпадает с общим фоном страницы */
+}
+
+/* 5) Мелочь, но полезно: чтобы кнопка не утыкалась в края на узких экранах */
+@media (max-width: 480px) {
+  .send-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Безопасная зона iOS + нормальный нижний запас для формы */
+.contact-right {
+  padding-bottom: max(60px, 28px + env(safe-area-inset-bottom));
+}
+
+/* Увеличиваем нижний отступ внутри футера, чтобы края не «давили» контент */
+.site-footer {
+  padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
+  background: var(--bg);
+}
+
+/* На мобилке не «обрезаем» края контейнера, убираем ломающую полосу */
+@media (max-width: 900px) {
+  .contact-main {
+    overflow: visible;
+    border-radius: var(--r-lg);
+    margin: 0 24px 24px;
+    padding-bottom: 0;
+  }
+
+  .contact-right {
+    padding: 40px 24px;
+    padding-bottom: max(80px, 36px + env(safe-area-inset-bottom));
+  }
+
+  /* Отключаем возможную декоративную подложку внизу правой панели */
+  .contact-right::after { content: none; }
+}
+

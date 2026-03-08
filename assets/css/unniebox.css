@@ -343,3 +343,268 @@ body:not(.is-loaded) .ub-content{opacity:0;transform:translateY(14px)}
 .case-footer--ub .case-footer__form button:hover{
   background: rgba(11,109,255,0.26);
 }
+
+
+/* ============================================
+   UNNIEBOX — Hero fix patch
+   Добавь в unniebox.css или замени существующие стили
+   ============================================ */
+
+/* Hero grid — такой же как в CLM */
+.case-hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 36px;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 40px;
+}
+
+/* Левая колонка hero */
+.case-hero-left {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Accent line */
+.ub-hero-accent {
+  width: 44px;
+  height: 3px;
+  background: linear-gradient(90deg, #0b6dff, #4aa2ff);
+  border-radius: 99px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+/* Eyebrow */
+.case-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs, 11px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(74, 162, 255, 0.9);
+  margin-bottom: 0;
+}
+
+/* Title */
+.case-title {
+  font-family: var(--font-serif, 'Cormorant Garamond', serif);
+  font-size: var(--h1, 76px);
+  line-height: 0.92;
+  font-weight: 400;
+  margin: 14px 0 20px;
+}
+
+/* Sub */
+.case-sub {
+  max-width: 46ch;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 16px;
+  line-height: 1.65;
+  margin-bottom: 0;
+}
+
+/* Кнопки — горизонтально в ряд */
+.case-actions {
+  display: flex;
+  flex-direction: row;        /* ← горизонтально, не вертикально */
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.btn-case {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.btn-case:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-case.primary {
+  background: #0b6dff;
+  border-color: #0b6dff;
+  font-weight: 500;
+}
+
+.btn-case.primary:hover {
+  background: #2e82ff;
+}
+
+/* Мета карточки под кнопками */
+.case-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.meta-card {
+  border: 1px solid rgba(11, 109, 255, 0.18);
+  background: rgba(11, 109, 255, 0.06);
+  border-radius: 16px;
+  padding: 13px 15px;
+}
+
+.meta-k {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--text-xs, 11px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(74, 162, 255, 0.85);
+}
+
+.meta-v {
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Chip теги внутри meta-v */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Правая колонка — изображение */
+.ub-hero-image-wrap {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(11, 109, 255, 0.2);
+  box-shadow: 0 0 60px rgba(11, 109, 255, 0.18), 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.ub-hero-image-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ub-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(4, 9, 26, 0.65) 0%, transparent 55%);
+}
+
+.ub-hero-badge {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(11, 109, 255, 0.92);
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-family: 'Space Mono', monospace;
+  box-shadow: 0 8px 24px rgba(11, 109, 255, 0.4);
+}
+
+/* ── Адаптив ── */
+@media (max-width: 980px) {
+  .case-hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .case-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .case-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ============================================
+   UNNIEBOX — кнопки в ряд (как в CLM)
+   Добавь в конец unniebox.css
+   ============================================ */
+
+.case-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.btn-case {
+  display: inline-flex !important;
+  width: auto !important;          /* убирает растяжку на всю ширину */
+  flex: 0 0 auto !important;       /* запрещает растягиваться */
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.btn-case:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-case.primary {
+  background: #0b6dff;
+  border-color: #0b6dff;
+  font-weight: 500;
+}
+
+.btn-case.primary:hover {
+  background: #2e82ff;
+}
+
+@media (max-width: 400px) {
+  .case-actions {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .btn-case {
+    width: 100% !important;
+    justify-content: center;
+    
+  }
+}
+
+/* Добавь в unniebox.css */
+.btn-case.primary {
+  color: #fff !important;
+}
