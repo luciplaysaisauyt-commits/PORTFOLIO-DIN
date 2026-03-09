@@ -616,14 +616,3 @@ main,
 }
 
 
-#topnav.nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
-  height: var(--navH);
-}
-
-main,
-.ps-page-wrap {
-  padding-top: calc(var(--navH) + 12px);
-}
